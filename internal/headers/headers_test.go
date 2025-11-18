@@ -27,7 +27,6 @@ func TestHeaders(t *testing.T) {
 	assert.Equal(t, 23, n)
 	assert.False(t, done)
 
-	// Test: Invalid spacing header
 	headers = newHeaders()
 	data = []byte("       Host : localhost:42069       \r\n\r\n")
 	n, done, err = headers.Parse(data)

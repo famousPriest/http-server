@@ -3,19 +3,20 @@ package headers
 import (
 	"bytes"
 	"errors"
+	"fmt"
+	"strings"
 )
 
-type Headers map[string]string
+const (
+	INVALID_HOST_NAME       = "invalid host name"
+	INVALID_CHAR_IN_REQUEST = "invalid characters in request line"
+)
 
-func createMockHeader() Headers {
-	return Headers{
-		"Content-Type":    "application/json",
-		"User-Agent":      "GoMockClient/1.0",
-		"Authorization":   "Bearer mock_token_123",
-		"Accept":          "*/*",
-		"X-Custom-Header": "mock-value",
-	}
+var INVALID_CHARS = []string{
+	" ", "!", "#", "$", "'", "*", "+", "-", "=", ".", "_", "`", "|", "~", "@",
 }
+
+type Headers map[string]string
 
 func (h Headers) Parse(data []byte) (n int, done bool, err error) {
 	crlfIdx := bytes.Index(data, []byte("\r\n"))
@@ -34,13 +35,34 @@ func (h Headers) Parse(data []byte) (n int, done bool, err error) {
 	valueBytes := parts[1]
 
 	if bytes.Contains(keyBytes, []byte(" ")) || len(keyBytes) == 0 {
-		return crlfIdx + 2, false, errors.New("invalid host name")
+		return crlfIdx + 2, false, errors.New(INVALID_HOST_NAME)
 	}
 
-	keyString := string(keyBytes)
-	valueString := string(bytes.TrimSpace(valueBytes))
+	for i, s := range INVALID_CHARS {
+		if bytes.Contains(keyBytes, []byte(s)) {
+			return crlfIdx + 2, false, errors.New(INVALID_CHAR_IN_REQUEST)
+		}
+		i++
+	}
 
-	h[keyString] = string(valueString)
+	key := strings.ToLower(string(keyBytes))
+	value := strings.Trim(string(valueBytes), " \r\n")
 
+	isFound := false
+	for k, v := range h {
+		if strings.ToLower(k) == key {
+			h[k] = strings.Trim(string(v), " \r\n") + ", " + value
+			isFound = true
+			break
+		}
+	}
+
+	if !isFound {
+		h[key] = value
+	}
+
+	for k, v := range h {
+		fmt.Printf("KEY: %s VALUE: %s\n", k, v)
+	}
 	return len(data), false, nil
 }
