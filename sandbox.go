@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"log"
 	"strings"
 )
 
@@ -82,4 +83,11 @@ func main() {
 	headers := newHeaders()
 	data := []byte("Host: localhost:42069\r\n\r\n")
 	n, done, err := headers.Parse(data)
+
+	if err != nil {
+		log.Fatalln("oopsey")
+	}
+	fmt.Print(n)
+	fmt.Print(done)
+	fmt.Print(err)
 }

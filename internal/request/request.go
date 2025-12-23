@@ -15,7 +15,7 @@ const (
 
 	DEFAULT_HTTP_VERSION = "HTTP/1.1"
 
-	BUFFER_SIZE             = 8
+	BUFFER_SIZE             = 16
 	StateInit   parserState = "init"
 	StateDone   parserState = "done"
 )
@@ -130,7 +130,7 @@ func RequestFromReader(reader io.Reader) (*Request, error) {
 		}
 
 		bufLen += n
-		readN, err := request.parse(buf[:bufLen+n])
+		readN, err := request.parse(buf[:bufLen])
 		if err != nil {
 			return nil, err
 		}

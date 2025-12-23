@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"i-hate-js/internal/request"
 	"log"
 	"net"
@@ -24,9 +25,9 @@ func main() {
 			log.Fatalln("oopsey")
 		}
 
-		// fmt.Printf("request line:\n")
-		// fmt.Printf("- method: %s\n", r.RequestLine.Method)
-		// fmt.Printf("- target: %s\n", r.RequestLine.RequestTarget)
-		// fmt.Printf("- version: %s\n", r.RequestLine.HttpVersion)
+		fmt.Printf("request line:\n")
+		fmt.Printf("- method: %s\n", r.RequestLine.Method)
+		fmt.Printf("- target: %s\n", r.RequestLine.RequestTarget)
+		fmt.Printf("- version: %s\n", r.RequestLine.HttpVersion)
 	}
 }
