@@ -15,7 +15,7 @@ const (
 
 	DEFAULT_HTTP_VERSION = "HTTP/1.1"
 
-	BUFFER_SIZE             = 16
+	BUFFER_SIZE             = 1024
 	StateInit   parserState = "init"
 	StateDone   parserState = "done"
 )
@@ -83,7 +83,7 @@ outer:
 			break outer
 		}
 	}
-	return 0, nil
+	return read, nil
 }
 
 func (r *Request) isDone() bool {
@@ -120,23 +120,29 @@ func parseRequestLine(b []byte) (*RequestLine, int, error) {
 
 func RequestFromReader(reader io.Reader) (*Request, error) {
 	request := newRequest()
-
 	buf := make([]byte, BUFFER_SIZE)
 	bufLen := 0
+
 	for !request.isDone() {
 		n, err := reader.Read(buf[bufLen:])
-		if err != nil {
-			return nil, err
-		}
-
 		bufLen += n
-		readN, err := request.parse(buf[:bufLen])
-		if err != nil {
-			return nil, err
+
+		if bufLen > 0 {
+			readN, parseErr := request.parse(buf[:bufLen])
+			if parseErr != nil {
+				return nil, parseErr
+			}
+
+			copy(buf, buf[readN:bufLen])
+			bufLen -= readN
 		}
 
-		copy(buf, buf[readN:bufLen])
-		bufLen -= readN
+		if err != nil {
+			if err == io.EOF && request.isDone() {
+				return request, nil
+			}
+			return nil, err
+		}
 	}
 
 	return request, nil
