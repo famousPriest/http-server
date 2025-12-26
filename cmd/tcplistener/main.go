@@ -11,18 +11,18 @@ func main() {
 
 	listener, err := net.Listen("tcp", ":42069")
 	if err != nil {
-		log.Fatalln("oopsey")
+		log.Fatalln("oopsey on listener")
 	}
 
 	for {
 		conn, err := listener.Accept()
 		if err != nil {
-			log.Fatalln("oopsey")
+			log.Fatalln("oopsey on connecting")
 		}
 
 		r, err := request.RequestFromReader(conn)
 		if err != nil {
-			log.Fatalln("oopsey")
+			log.Fatalln("oopsey on getting a request from the reader")
 		}
 
 		fmt.Printf("request line:\n")

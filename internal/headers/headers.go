@@ -18,6 +18,16 @@ var INVALID_CHARS = []string{
 
 type Headers map[string]string
 
+func (h Headers) GetValue(key string) (value string) {
+	lowerKey := strings.ToLower(key)
+	for k, v := range h {
+		if strings.ToLower(k) == lowerKey {
+			return v
+		}
+	}
+	return ""
+}
+
 func (h Headers) Parse(data []byte) (n int, done bool, err error) {
 	crlfIdx := bytes.Index(data, []byte("\r\n"))
 
